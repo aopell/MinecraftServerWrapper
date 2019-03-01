@@ -1,6 +1,7 @@
 ﻿using fNbt;
 using MCServerWrapper.Messages;
 using MCServerWrapper.Plugins;
+using MCServerWrapper.Utilities;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
@@ -22,8 +23,7 @@ namespace SamplePlugins
         {
             string deathMessage = MatchesDeathMessage(message.Text);
             if (deathMessage == null) return;
-            console.SendCommand("save-all");
-
+            console.SendCommand("save-all", false, false);
             await Task.Delay(3000);
 
             string player = message.Text.Split(' ')[0].Trim();
@@ -49,7 +49,7 @@ namespace SamplePlugins
 
             var data = new NbtFile(playerData).RootTag.Get<NbtList>("Pos");
 
-            console.SendCommand($"say {player} died at approximately ({string.Join(", ", data.Select(x => (int)x.DoubleValue))})");
+            console.SendCommand(CommandHelper.Tellraw("@a", new MinecraftTextElement($"[Death Location] {player} died at approximately ({string.Join(", ", data.Select(x => (int)x.DoubleValue))})", MinecraftColor.light_purple)), true, false);
         }
 
         public void OnPlayerConnect(IServerConsole console, ServerConnectionMessage message) { }

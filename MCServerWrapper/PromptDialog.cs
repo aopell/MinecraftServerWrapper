@@ -5,7 +5,7 @@ namespace MCServerWrapper
     /// <summary>
     /// Dialog box containing a text box and a label
     /// </summary>
-    public partial class PromptDialog : Form
+    internal partial class PromptDialog : Form
     {
         private string Result { get; set; }
         private int maxCharCount;

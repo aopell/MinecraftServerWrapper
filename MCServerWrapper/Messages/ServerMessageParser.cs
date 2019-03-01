@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MCServerWrapper.Messages
 {
-    internal static class ServerOutputParser
+    internal static class ServerMessageParser
     {
         /// <summary>
         /// Returns the appropriate subclass of <see cref="ServerMessage" /> depending on the contents of <paramref name="inputMessage"/>

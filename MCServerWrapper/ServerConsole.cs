@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace MCServerWrapper
@@ -26,7 +24,8 @@ namespace MCServerWrapper
         private readonly DropOutLinkedList<string> commandHistory = new DropOutLinkedList<string>(20);
         private LinkedListNode<string> currentHistoryItem = null;
 
-        private readonly List<IPlugin> plugins = new List<IPlugin>();
+        private readonly PluginLoader plugins = new PluginLoader("Plugins");
+
         private Config config;
 
         private Dictionary<string, string> playerPrefixes = new Dictionary<string, string>();
@@ -160,46 +159,18 @@ namespace MCServerWrapper
         /// </summary>
         private void LoadPlugins()
         {
-            plugins.Clear();
-            if (!Directory.Exists("Plugins"))
+            var result = plugins.Reload();
+
+            if (result.dlls == 0 || result.loaded == 0 && result.failed == 0) DisplayLine("No plugins found", Color.LightGray);
+
+            if (result.loaded > 0) DisplayLine($"Successfully loaded {result.loaded} plugins from {result.dlls} DLLs", green);
+            foreach (IPlugin plugin in plugins.Enabled)
             {
-                DisplayLine("No plugins found", Color.LightGray);
-                return;
+                DisplayLine($"{plugin.Name}: {plugin.Description}", green);
             }
 
-            try
-            {
-                var dlls = Directory.GetFiles("Plugins").Where(x => Path.GetExtension(x) == ".dll").ToList();
+            if (result.failed > 0) DisplayLine($"Failed to load {result.failed} plugins", red);
 
-                if (dlls.Count == 0)
-                {
-                    DisplayLine("No plugins found", Color.LightGray);
-                }
-
-                foreach (string dll in dlls)
-                {
-                    try
-                    {
-                        Assembly assembly = Assembly.Load(File.ReadAllBytes(Path.GetFullPath(dll)));
-                        var pluginTypes = assembly.GetTypes().Where(x => typeof(IPlugin).IsAssignableFrom(x));
-                        plugins.AddRange(pluginTypes.Select(Activator.CreateInstance).Cast<IPlugin>());
-                    }
-                    catch (ReflectionTypeLoadException)
-                    {
-                        DisplayLine($"Error loading plugins from DLL \"{Path.GetFullPath(dll)}\": Invalid plugin format. Please note that your project must reference System.Windows.Forms for your plugins to load correctly.", Color.Red);
-                    }
-                }
-
-                DisplayLine($"Loaded {plugins.Count} plugins from {dlls.Count} DLLs", Color.LightGray);
-                foreach (IPlugin plugin in plugins)
-                {
-                    DisplayLine($"{plugin.Name}: {plugin.Description}", green);
-                }
-            }
-            catch (Exception ex)
-            {
-                DisplayLine($"Error loading plugins: {ex}", red);
-            }
         }
 
         private void LoadScoreboardData()
@@ -271,7 +242,7 @@ namespace MCServerWrapper
                     scoreboardFileWatcher.Path = Path.Combine(Server.WorkingDirectory, world, "data");
                 }
 
-                plugins.ForEach(x => x.OnStart(this));
+                plugins.OnStart(this);
 
                 LoadScoreboardData();
             });
@@ -300,7 +271,7 @@ namespace MCServerWrapper
 
                 Text = "Minecraft Server | Server Offline";
 
-                plugins.ForEach(x => x.OnExit(this));
+                plugins.OnExit(this);
             });
         }
 
@@ -309,13 +280,13 @@ namespace MCServerWrapper
             Invoke((MethodInvoker)delegate
             {
                 if (e.Data == null) return;
-                ServerMessage m = ServerOutputParser.DetermineMessageType(e.Data, playerPrefixes);
+                ServerMessage m = ServerMessageParser.DetermineMessageType(e.Data, playerPrefixes);
                 DisplayLine(config.DisplayRawOutput ? m.RawText : m.Text, GetColor(m), displayTime: !config.DisplayRawOutput);
 
                 switch (m)
                 {
                     case ServerChatMessage chat:
-                        plugins.ForEach(x => x.OnChatMessage(this, chat));
+                        plugins.OnChatMessage(this, chat);
                         switch (chat.MessageType)
                         {
                             case ServerChatMessage.ChatMessageType.Command:
@@ -323,21 +294,21 @@ namespace MCServerWrapper
                         }
                         break;
                     case ServerSuccessMessage s:
-                        plugins.ForEach(x => x.OnSuccessMessage(this, s));
+                        plugins.OnSuccessMessage(this, s);
                         break;
                     case ServerErrorMessage err:
-                        plugins.ForEach(x => x.OnErrorMessage(this, err));
+                        plugins.OnErrorMessage(this, err);
                         break;
                     case ServerConnectionMessage connection:
                         switch (connection.ConnectionType)
                         {
                             case ServerConnectionMessage.ServerConnectionType.Connect:
                                 PlayerJoined(connection);
-                                plugins.ForEach(x => x.OnPlayerConnect(this, connection));
+                                plugins.OnPlayerConnect(this, connection);
                                 break;
                             case ServerConnectionMessage.ServerConnectionType.Disconnect:
                                 PlayerLeft(connection);
-                                plugins.ForEach(x => x.OnPlayerDisconnect(this, connection));
+                                plugins.OnPlayerDisconnect(this, connection);
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -348,7 +319,7 @@ namespace MCServerWrapper
 
                         break;
                     default:
-                        plugins.ForEach(x => x.OnOtherMessage(this, m));
+                        plugins.OnOtherMessage(this, m);
                         break;
                 }
             });
@@ -546,7 +517,7 @@ namespace MCServerWrapper
 
         private void unloadAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            plugins.Clear();
+            plugins.Unload();
             DisplayLine("Unloaded all plugins", Color.LightGray);
         }
 

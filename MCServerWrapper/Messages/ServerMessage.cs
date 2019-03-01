@@ -35,18 +35,6 @@ namespace MCServerWrapper.Messages
         public override string ToString() => Text;
     }
 
-    public class ServerErrorMessage : ServerMessage
-    {
-        public ServerErrorMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
-        public ServerErrorMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
-    }
-
-    public class ServerSuccessMessage : ServerMessage
-    {
-        public ServerSuccessMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
-        public ServerSuccessMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
-    }
-
     public class ServerChatMessage : ServerMessage
     {
         public string Username { get; set; }
@@ -133,5 +121,17 @@ namespace MCServerWrapper.Messages
             Connect,
             Disconnect
         }
+    }
+
+    public class ServerErrorMessage : ServerMessage
+    {
+        public ServerErrorMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
+        public ServerErrorMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
+    }
+
+    public class ServerSuccessMessage : ServerMessage
+    {
+        public ServerSuccessMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
+        public ServerSuccessMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
     }
 }

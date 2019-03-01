@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Plugins\IServerConsole.cs" />
+    <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Utilities\CommandHelper.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Utilities\ConfigFile.cs" />
@@ -80,7 +81,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Messages\ServerMessage.cs" />
-    <Compile Include="Messages\ServerOutputParser.cs" />
+    <Compile Include="Messages\ServerMessageParser.cs" />
+    <Compile Include="Utilities\MinecraftTextElement.cs" />
     <EmbeddedResource Include="PromptDialog.resx">
       <DependentUpon>PromptDialog.cs</DependentUpon>
     </EmbeddedResource>
