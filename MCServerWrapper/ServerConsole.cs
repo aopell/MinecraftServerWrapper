@@ -483,6 +483,11 @@ namespace MCServerWrapper
 
         private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!Directory.Exists("Plugins"))
+            {
+                Directory.CreateDirectory("Plugins");
+            }
+
             Process.Start(Path.GetFullPath("Plugins"));
         }
     }
