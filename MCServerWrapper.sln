@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCServerWrapper", "MCServerWrapper\MCServerWrapper.csproj", "{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerWrapperPlugins", "ServerWrapperPlugins\ServerWrapperPlugins.csproj", "{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D92A119-D514-41E7-B335-2719E3DE9D54}
+	EndGlobalSection
+EndGlobal
