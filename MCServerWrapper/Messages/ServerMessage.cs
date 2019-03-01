@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace MCServerWrapper.Messages
@@ -53,12 +54,6 @@ namespace MCServerWrapper.Messages
 
         public ServerChatMessage(string prefix, string text) : base(prefix, text)
         {
-            /* TODO: Issues with custom scoreboard prefixes/suffixes, the regex will no longer match properly
-             * TODO: This also creates problems with capturing the username since prefixes/suffixes can be arbitrary strings
-             * TODO: There may be no resolution to this. Only thought could be comparing "username" to a list of logged in users
-             * TODO: However this has its own problems since it may display pre-/suffixes in join messages (though maybe not the UUID verification message)
-             * TODO: Will probably need to split into separate regexes for each message type */
-
             GroupCollection groups = Regex.Match(text, @"([[<*]) ?(\w{1,16})[>:\] ] ?(.+?)(]$|$)").Groups;
             Username = groups[2].Value;
             ChatMessage = groups[3].Value;
@@ -80,7 +75,7 @@ namespace MCServerWrapper.Messages
             }
         }
 
-        public ServerChatMessage(ServerMessage m) : this(m.Prefix, m.Text) { }
+        public ServerChatMessage(ServerMessage m, Dictionary<string, string> replacements = null) : this(m.Prefix, m.Text.ReplaceAll(replacements)) { }
 
         public override string ToString()
         {

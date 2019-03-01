@@ -33,7 +33,6 @@
             this.playersLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.commandBox = new System.Windows.Forms.TextBox();
-            this.sendButton = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,14 +63,17 @@
             this.consoleView = new System.Windows.Forms.RichTextBox();
             this.playerView = new System.Windows.Forms.ListBox();
             this.detailsTimer = new System.Windows.Forms.Timer(this.components);
+            this.scoreboardFileWatcher = new System.IO.FileSystemWatcher();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.scoreboardFileWatcher)).BeginInit();
             this.SuspendLayout();
             // 
             // playersLabel
             // 
             this.playersLabel.AutoSize = true;
             this.playersLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.playersLabel.Location = new System.Drawing.Point(12, 32);
+            this.playersLabel.ForeColor = System.Drawing.Color.White;
+            this.playersLabel.Location = new System.Drawing.Point(12, 30);
             this.playersLabel.Name = "playersLabel";
             this.playersLabel.Size = new System.Drawing.Size(57, 18);
             this.playersLabel.TabIndex = 2;
@@ -81,7 +83,8 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(153, 30);
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(153, 28);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 20);
             this.label2.TabIndex = 3;
@@ -91,27 +94,16 @@
             // 
             this.commandBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.commandBox.BackColor = System.Drawing.SystemColors.Window;
+            this.commandBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(52)))));
+            this.commandBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.commandBox.Enabled = false;
-            this.commandBox.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.commandBox.ForeColor = System.Drawing.Color.DarkCyan;
-            this.commandBox.Location = new System.Drawing.Point(157, 534);
+            this.commandBox.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.commandBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(86)))), ((int)(((byte)(182)))), ((int)(((byte)(194)))));
+            this.commandBox.Location = new System.Drawing.Point(157, 540);
             this.commandBox.Name = "commandBox";
-            this.commandBox.Size = new System.Drawing.Size(719, 25);
+            this.commandBox.Size = new System.Drawing.Size(774, 19);
             this.commandBox.TabIndex = 4;
             this.commandBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.commandBox_KeyUp);
-            // 
-            // sendButton
-            // 
-            this.sendButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.sendButton.Enabled = false;
-            this.sendButton.Location = new System.Drawing.Point(882, 533);
-            this.sendButton.Name = "sendButton";
-            this.sendButton.Size = new System.Drawing.Size(49, 26);
-            this.sendButton.TabIndex = 5;
-            this.sendButton.Text = "Send";
-            this.sendButton.UseVisualStyleBackColor = true;
-            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
             // 
             // menuStrip1
             // 
@@ -343,13 +335,14 @@
             this.consoleView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.consoleView.BackColor = System.Drawing.Color.Black;
+            this.consoleView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(52)))));
+            this.consoleView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.consoleView.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.consoleView.ForeColor = System.Drawing.Color.White;
             this.consoleView.Location = new System.Drawing.Point(157, 53);
             this.consoleView.Name = "consoleView";
             this.consoleView.ReadOnly = true;
-            this.consoleView.Size = new System.Drawing.Size(774, 479);
+            this.consoleView.Size = new System.Drawing.Size(774, 481);
             this.consoleView.TabIndex = 7;
             this.consoleView.Text = "";
             // 
@@ -357,10 +350,13 @@
             // 
             this.playerView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.playerView.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.playerView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(44)))), ((int)(((byte)(52)))));
+            this.playerView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.playerView.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.playerView.ForeColor = System.Drawing.Color.LightGray;
             this.playerView.FormattingEnabled = true;
             this.playerView.IntegralHeight = false;
-            this.playerView.ItemHeight = 16;
+            this.playerView.ItemHeight = 18;
             this.playerView.Location = new System.Drawing.Point(15, 53);
             this.playerView.Name = "playerView";
             this.playerView.Size = new System.Drawing.Size(136, 506);
@@ -371,15 +367,22 @@
             this.detailsTimer.Interval = 5000;
             this.detailsTimer.Tick += new System.EventHandler(this.detailsTimer_Tick);
             // 
+            // scoreboardFileWatcher
+            // 
+            this.scoreboardFileWatcher.EnableRaisingEvents = true;
+            this.scoreboardFileWatcher.Filter = "scoreboard.dat";
+            this.scoreboardFileWatcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
+            this.scoreboardFileWatcher.SynchronizingObject = this;
+            this.scoreboardFileWatcher.Changed += new System.IO.FileSystemEventHandler(this.scoreboardFileWatcher_Changed);
+            // 
             // ServerConsole
             // 
-            this.AcceptButton = this.sendButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(35)))), ((int)(((byte)(41)))));
             this.ClientSize = new System.Drawing.Size(943, 565);
             this.Controls.Add(this.playerView);
             this.Controls.Add(this.consoleView);
-            this.Controls.Add(this.sendButton);
             this.Controls.Add(this.commandBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.playersLabel);
@@ -392,6 +395,7 @@
             this.Load += new System.EventHandler(this.ServerConsole_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.scoreboardFileWatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -401,7 +405,6 @@
         private System.Windows.Forms.Label playersLabel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox commandBox;
-        private System.Windows.Forms.Button sendButton;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
@@ -432,6 +435,7 @@
         private System.Windows.Forms.ToolStripMenuItem reloadPluginsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem unloadAllToolStripMenuItem;
+        private System.IO.FileSystemWatcher scoreboardFileWatcher;
     }
 }
 

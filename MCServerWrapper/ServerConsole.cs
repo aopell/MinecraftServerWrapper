@@ -1,4 +1,5 @@
-﻿using MCServerWrapper.Messages;
+﻿using fNbt;
+using MCServerWrapper.Messages;
 using MCServerWrapper.Plugins;
 using MCServerWrapper.ServerWrapper;
 using MCServerWrapper.Utilities;
@@ -21,11 +22,16 @@ namespace MCServerWrapper
         private PerformanceCounter memoryCounter = null;
         private PerformanceCounter cpuCounter = null;
 
+        private static readonly Color red = Color.FromArgb(0xf4, 0x47, 0x47);
+        private static readonly Color green = Color.FromArgb(0x98, 0xc3, 0x79);
+
         private readonly DropOutLinkedList<string> commandHistory = new DropOutLinkedList<string>(20);
         private LinkedListNode<string> currentHistoryItem = null;
 
         private readonly List<IPlugin> plugins = new List<IPlugin>();
         private Config config;
+
+        private Dictionary<string, string> playerPrefixes = new Dictionary<string, string>();
 
         public ServerConsole()
         {
@@ -48,7 +54,7 @@ namespace MCServerWrapper
                     CheckFileExists = true
                 };
 
-                if ((Server == null && openFileDialog.ShowDialog() == DialogResult.OK) || !Running)
+                if ((Server == null && openFileDialog.ShowDialog() == DialogResult.OK) || (Server != null && !Running))
                 {
                     if (Server != null)
                     {
@@ -106,7 +112,7 @@ namespace MCServerWrapper
 
                 if (displayInConsole)
                 {
-                    DisplayLine(command, Color.Cyan);
+                    DisplayLine(command, Color.FromArgb(0x56, 0xb6, 0xc2));
                 }
 
                 Server.SendCommand(command);
@@ -132,19 +138,19 @@ namespace MCServerWrapper
             switch (serverMessage)
             {
                 case ServerErrorMessage _:
-                    return Color.Red;
+                    return red;
                 case ServerChatMessage cm:
                     switch (cm.MessageType)
                     {
                         case ServerChatMessage.ChatMessageType.Command:
                         case ServerChatMessage.ChatMessageType.Say:
-                            return Color.Magenta;
+                            return Color.FromArgb(0xc6, 0x78, 0xdd);
                     }
-                    return Color.Orange;
+                    return Color.FromArgb(0xd1, 0x9a, 0x66);
                 case ServerConnectionMessage _:
-                    return Color.Yellow;
+                    return Color.FromArgb(0xe5, 0xc0, 0x7b);
                 case ServerSuccessMessage _:
-                    return Color.FromArgb(0, 255, 0);
+                    return green;
                 default:
                     return Color.LightGray;
             }
@@ -188,12 +194,46 @@ namespace MCServerWrapper
                 DisplayLine($"Loaded {plugins.Count} plugins from {dlls.Count} DLLs", Color.LightGray);
                 foreach (IPlugin plugin in plugins)
                 {
-                    DisplayLine($"{plugin.Name}: {plugin.Description}", Color.FromArgb(0, 255, 0));
+                    DisplayLine($"{plugin.Name}: {plugin.Description}", green);
                 }
             }
             catch (Exception ex)
             {
-                DisplayLine($"Error loading plugins: {ex}", Color.Red);
+                DisplayLine($"Error loading plugins: {ex}", red);
+            }
+        }
+
+        private void LoadScoreboardData()
+        {
+            playerPrefixes.Clear();
+            try
+            {
+                bool worldPropertyExists = Server.TryGetProperty("level-name", out string world);
+                if (!worldPropertyExists) return;
+
+                var teams = new NbtFile(Path.Combine(Server.WorkingDirectory, world, "data/scoreboard.dat")).RootTag.Get<NbtCompound>("data")?.Get<NbtList>("Teams");
+                if (teams == null) return;
+
+                foreach (NbtTag nbtTag in teams)
+                {
+                    var team = (NbtCompound)nbtTag;
+                    string prefix = string.Join("", (object[])MinecraftTextElement.FromJson(team.Get("MemberNamePrefix").StringValue));
+                    string suffix = string.Join("", (object[])MinecraftTextElement.FromJson(team.Get("MemberNameSuffix").StringValue));
+
+                    var players = team.Get<NbtList>("Players");
+                    if (players == null) continue;
+
+                    foreach (NbtTag player in players)
+                    {
+                        playerPrefixes[$"{prefix}{player.StringValue}{suffix}"] = player.StringValue;
+                    }
+                }
+            }
+            catch (IOException) { }
+            catch (Exception ex)
+            {
+                playerPrefixes.Clear();
+                DisplayLine($"Error Loading Scoreboard Data: {ex}", red);
             }
         }
 
@@ -206,7 +246,7 @@ namespace MCServerWrapper
         {
             Invoke((MethodInvoker)delegate
             {
-                DisplayLine("Starting server", Color.FromArgb(0, 255, 0));
+                DisplayLine("Starting server", green);
                 statusToolStripMenuItem.Text = "Server Online";
                 statusToolStripMenuItem.ForeColor = Color.Green;
                 bool propertyExists = Server.TryGetProperty("max-players", out string maxPlayers);
@@ -217,7 +257,6 @@ namespace MCServerWrapper
                 stopToolStripMenuItem.Enabled = true;
                 restartToolStripMenuItem.Enabled = true;
                 switchToolStripMenuItem.Enabled = true;
-                sendButton.Enabled = true;
                 commandBox.Enabled = true;
                 ramToolStripMenuItem.Visible = true;
                 cpuToolStripMenuItem.Visible = true;
@@ -228,7 +267,14 @@ namespace MCServerWrapper
                 string directory = new DirectoryInfo(Server.WorkingDirectory).Name;
                 Text = worldPropertyExists ? $"Minecraft Server | {directory} | {world}" : $"Minecraft Server | {directory}";
 
+                if (worldPropertyExists)
+                {
+                    scoreboardFileWatcher.Path = Path.Combine(Server.WorkingDirectory, world, "data");
+                }
+
                 plugins.ForEach(x => x.OnStart(this));
+
+                LoadScoreboardData();
             });
         }
 
@@ -236,10 +282,10 @@ namespace MCServerWrapper
         {
             Invoke((MethodInvoker)delegate
             {
-                DisplayLine("Server exited successfully", Color.Red);
+                DisplayLine("Server exited successfully", red);
                 playerView.Items.Clear();
                 statusToolStripMenuItem.Text = "Server Offline";
-                statusToolStripMenuItem.ForeColor = Color.Red;
+                statusToolStripMenuItem.ForeColor = red;
                 playersLabel.Text = "Players";
 
                 openToolStripMenuItem.Enabled = false;
@@ -247,7 +293,6 @@ namespace MCServerWrapper
                 stopToolStripMenuItem.Enabled = false;
                 restartToolStripMenuItem.Enabled = false;
                 switchToolStripMenuItem.Enabled = false;
-                sendButton.Enabled = false;
                 commandBox.Enabled = false;
                 ramToolStripMenuItem.Visible = false;
                 cpuToolStripMenuItem.Visible = false;
@@ -265,13 +310,18 @@ namespace MCServerWrapper
             Invoke((MethodInvoker)delegate
             {
                 if (e.Data == null) return;
-                ServerMessage m = ServerOutputParser.DetermineMessageType(e.Data);
+                ServerMessage m = ServerOutputParser.DetermineMessageType(e.Data, playerPrefixes);
                 DisplayLine(m.Text, GetColor(m));
 
                 switch (m)
                 {
                     case ServerChatMessage chat:
                         plugins.ForEach(x => x.OnChatMessage(this, chat));
+                        switch (chat.MessageType)
+                        {
+                            case ServerChatMessage.ChatMessageType.Command:
+                                break;
+                        }
                         break;
                     case ServerSuccessMessage s:
                         plugins.ForEach(x => x.OnSuccessMessage(this, s));
@@ -391,12 +441,6 @@ namespace MCServerWrapper
             }
         }
 
-        private void sendButton_Click(object sender, EventArgs e)
-        {
-            SendCommand(commandBox.Text);
-            commandBox.Text = "";
-        }
-
         private void detailsTimer_Tick(object sender, EventArgs e)
         {
             if (!Running)
@@ -427,7 +471,7 @@ namespace MCServerWrapper
         {
             if (Server == null || !Running) return;
 
-            switch (MessageBox.Show("StopServer the server before exiting?", "Server Running", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+            switch (MessageBox.Show("Stop the server before exiting?", "Server Running", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
             {
                 case DialogResult.Yes:
                     Server.Exited += (ss, ee) => Application.Exit();
@@ -446,14 +490,14 @@ namespace MCServerWrapper
         {
             if (Server == null || !Running)
             {
-                if (MessageBox.Show("StartServer the server?", "StartServer Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Start the server?", "Start Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     startToolStripMenuItem_Click(sender, e);
                 }
             }
             else
             {
-                if (MessageBox.Show("StopServer the server?", "StopServer Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Stop the server?", "Stop Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     Server.Stop();
                 }
@@ -484,6 +528,10 @@ namespace MCServerWrapper
                     commandBox.SelectionStart = commandBox.Text.Length;
                     commandBox.SelectionLength = 0;
                     break;
+                case Keys.Enter:
+                    SendCommand(commandBox.Text);
+                    commandBox.Text = "";
+                    break;
             }
         }
 
@@ -511,6 +559,11 @@ namespace MCServerWrapper
             }
 
             Process.Start(Path.GetFullPath("Plugins"));
+        }
+
+        private void scoreboardFileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            LoadScoreboardData();
         }
     }
 }

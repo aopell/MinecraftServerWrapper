@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MCServerWrapper.Messages
 {
@@ -8,7 +9,7 @@ namespace MCServerWrapper.Messages
         /// Returns the appropriate subclass of <see cref="ServerMessage" /> depending on the contents of <paramref name="inputMessage"/>
         /// </summary>
         /// <param name="inputMessage">Standard output message received from the Minecraft server process</param>
-        public static ServerMessage DetermineMessageType(string inputMessage)
+        public static ServerMessage DetermineMessageType(string inputMessage, Dictionary<string, string> replacements)
         {
             ServerMessage message = ServerMessage.Create(inputMessage);
 
@@ -19,7 +20,7 @@ namespace MCServerWrapper.Messages
 
             if (message.Text[0] == '<' || message.Text[0] == '[' || message.Text[0] == '*') // "<user> Chat message" or "[user: Set gamemode to Creative]" or "[user] Say command message" or "* user sings"
             {
-                return new ServerChatMessage(message);
+                return new ServerChatMessage(message, replacements);
             }
             else if (message.Text.ContainsAny("logged in", "lost connection"))
             {
@@ -46,5 +47,23 @@ namespace MCServerWrapper.Messages
         /// <param name="s"></param>
         /// <param name="substrings">Substrings to check</param>
         public static bool ContainsAny(this string s, params string[] substrings) => substrings.Any(s.Contains);
+
+        /// <summary>
+        /// Replaces all keys in the provided dictionary with their associated values
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="replacements">A dictionary with values being the replacement for the associated keys</param>
+        /// <returns></returns>
+        public static string ReplaceAll(this string s, Dictionary<string, string> replacements)
+        {
+            if (replacements == null) return s;
+
+            foreach (string r in replacements.Keys)
+            {
+                s = s.Replace(r, replacements[r]);
+            }
+
+            return s;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace MCServerWrapper.Messages
 {
@@ -28,6 +29,10 @@ namespace MCServerWrapper.Messages
 
         [JsonProperty("strikethrough")] public bool Strikethrough { get; set; }
 
+        [JsonProperty("extra")] public MinecraftTextElement[] Extra { get; set; }
+
+        public MinecraftTextElement() { }
+
         public MinecraftTextElement(
             string text = "",
             MinecraftColor color = MinecraftColor.white,
@@ -35,7 +40,8 @@ namespace MCServerWrapper.Messages
             bool italic = false,
             bool underlined = false,
             bool obfuscated = false,
-            bool strikethrough = false)
+            bool strikethrough = false,
+            MinecraftTextElement[] extra = null)
         {
             Text = text;
             Color = color;
@@ -44,7 +50,17 @@ namespace MCServerWrapper.Messages
             Underlined = underlined;
             Obfuscated = obfuscated;
             Strikethrough = strikethrough;
+            Extra = extra;
         }
+
+        public static MinecraftTextElement[] FromJson(string json)
+        {
+            return JObject.Parse(json).Type == JTokenType.Array
+                       ? JsonConvert.DeserializeObject<MinecraftTextElement[]>(json)
+                       : new[] { JsonConvert.DeserializeObject<MinecraftTextElement>(json) };
+        }
+
+        public override string ToString() => Extra == null ? Text : string.Join("", Text, string.Join("", (object[])Extra));
     }
 
     public enum MinecraftColor
