@@ -2,7 +2,6 @@
 using MCServerWrapper.Plugins;
 using MCServerWrapper.ServerWrapper;
 using MCServerWrapper.Utilities;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,8 +33,7 @@ namespace MCServerWrapper
             Server = null;
             InitializeComponent();
 
-            config = File.Exists("config.json") ? JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json")) : new Config();
-            config.FilePath = "config.json";
+            config = ConfigFile.Load<Config>("config.json");
         }
 
         /// <summary>
@@ -234,7 +232,7 @@ namespace MCServerWrapper
 
                 Text = "Minecraft Server | Server Offline";
 
-                plugins.ForEach(x => x.OnExit());
+                plugins.ForEach(x => x.OnExit(this));
             });
         }
 

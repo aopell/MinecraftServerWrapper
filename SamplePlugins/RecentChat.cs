@@ -3,8 +3,6 @@ using MCServerWrapper.Plugins;
 using MCServerWrapper.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 
 namespace ServerWrapperPlugins
 {
@@ -18,10 +16,9 @@ namespace ServerWrapperPlugins
         public void OnStart(IServerConsole server)
         {
             chatMessages.Clear();
-            server.DisplayLine(Path.GetFullPath("."), Color.LightGray);
         }
 
-        public void OnExit()
+        public void OnExit(IServerConsole server)
         {
             chatMessages.Clear();
         }
@@ -52,9 +49,12 @@ namespace ServerWrapperPlugins
                         message.Username,
                         new MinecraftTextElement
                         {
-                            Text = $"Welcome {message.Username}! Here's recent chat messages:",
+                            Text = $"Welcome {message.Username}! Here are some recent chat messages:",
                             Color = MinecraftColor.gold
-                        })
+                        }
+                    ),
+                    displayInConsole: false,
+                    addToHistory: false
                 );
 
                 foreach (string s in recentChat)
@@ -66,7 +66,10 @@ namespace ServerWrapperPlugins
                             {
                                 Text = s,
                                 Color = MinecraftColor.gold
-                            })
+                            }
+                        ),
+                        displayInConsole: false,
+                        addToHistory: false
                     );
                 }
             }

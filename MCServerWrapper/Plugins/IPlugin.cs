@@ -21,7 +21,8 @@ namespace MCServerWrapper.Plugins
         /// <summary>
         /// Called when the server exits
         /// </summary>
-        void OnExit();
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        void OnExit(IServerConsole server);
         /// <summary>
         /// Called when a chat message is sent
         /// </summary>
