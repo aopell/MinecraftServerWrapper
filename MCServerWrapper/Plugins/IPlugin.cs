@@ -16,48 +16,48 @@ namespace MCServerWrapper.Plugins
         /// <summary>
         /// Called when the server starts
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
-        void OnStart(IServerConsole server);
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
+        void OnStart(IServerConsole console);
         /// <summary>
         /// Called when the server exits
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
-        void OnExit(IServerConsole server);
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
+        void OnExit(IServerConsole console);
         /// <summary>
         /// Called when a chat message is sent
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The chat message</param>
-        void OnChatMessage(IServerConsole server, ServerChatMessage message);
+        void OnChatMessage(IServerConsole console, ServerChatMessage message);
         /// <summary>
         /// Called when the server receives an error message
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The error message</param>
-        void OnErrorMessage(IServerConsole server, ServerErrorMessage message);
+        void OnErrorMessage(IServerConsole console, ServerErrorMessage message);
         /// <summary>
         /// Called when the server receives a success message
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The success message</param>
-        void OnSuccessMessage(IServerConsole server, ServerSuccessMessage message);
+        void OnSuccessMessage(IServerConsole console, ServerSuccessMessage message);
         /// <summary>
         /// Called when the server receives a message that isn't otherwise categorized
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The uncategorized message</param>
-        void OnOtherMessage(IServerConsole server, ServerMessage message);
+        void OnOtherMessage(IServerConsole console, ServerMessage message);
         /// <summary>
         /// Called when a player joins the server
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The connection message</param>
-        void OnPlayerConnect(IServerConsole server, ServerConnectionMessage message);
+        void OnPlayerConnect(IServerConsole console, ServerConnectionMessage message);
         /// <summary>
         /// Called when a player disconnects from the server
         /// </summary>
-        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        /// <param name="console">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The disconnection message</param>
-        void OnPlayerDisconnect(IServerConsole server, ServerConnectionMessage message);
+        void OnPlayerDisconnect(IServerConsole console, ServerConnectionMessage message);
     }
 }

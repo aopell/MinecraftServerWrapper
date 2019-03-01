@@ -22,29 +22,29 @@ namespace SamplePlugins
             client = new HttpClient();
         }
 
-        public void OnStart(IServerConsole server)
+        public void OnStart(IServerConsole console)
         {
-            PostWebhookMessage(new DiscordWebhookMessage("Server is now online"), server);
+            PostWebhookMessage(new DiscordWebhookMessage("Server is now online"), console);
         }
 
-        public void OnExit(IServerConsole server)
+        public void OnExit(IServerConsole console)
         {
-            PostWebhookMessage(new DiscordWebhookMessage("Server is now offline"), server);
+            PostWebhookMessage(new DiscordWebhookMessage("Server is now offline"), console);
         }
 
-        public void OnChatMessage(IServerConsole server, ServerChatMessage message) { }
-        public void OnErrorMessage(IServerConsole server, ServerErrorMessage message) { }
-        public void OnSuccessMessage(IServerConsole server, ServerSuccessMessage message) { }
-        public void OnOtherMessage(IServerConsole server, ServerMessage message) { }
+        public void OnChatMessage(IServerConsole console, ServerChatMessage message) { }
+        public void OnErrorMessage(IServerConsole console, ServerErrorMessage message) { }
+        public void OnSuccessMessage(IServerConsole console, ServerSuccessMessage message) { }
+        public void OnOtherMessage(IServerConsole console, ServerMessage message) { }
 
-        public void OnPlayerConnect(IServerConsole server, ServerConnectionMessage message)
+        public void OnPlayerConnect(IServerConsole console, ServerConnectionMessage message)
         {
-            PostWebhookMessage(DiscordWebhookMessage.FromServerMessage(message), server);
+            PostWebhookMessage(DiscordWebhookMessage.FromServerMessage(message), console);
         }
 
-        public void OnPlayerDisconnect(IServerConsole server, ServerConnectionMessage message)
+        public void OnPlayerDisconnect(IServerConsole console, ServerConnectionMessage message)
         {
-            PostWebhookMessage(DiscordWebhookMessage.FromServerMessage(message), server);
+            PostWebhookMessage(DiscordWebhookMessage.FromServerMessage(message), console);
         }
 
         private async void PostWebhookMessage(DiscordWebhookMessage message, IServerConsole console)

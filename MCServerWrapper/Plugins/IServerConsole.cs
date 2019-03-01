@@ -1,5 +1,4 @@
-﻿using MCServerWrapper.ServerWrapper;
-using System;
+﻿using System;
 using System.Drawing;
 
 namespace MCServerWrapper.Plugins
@@ -7,9 +6,24 @@ namespace MCServerWrapper.Plugins
     public interface IServerConsole
     {
         /// <summary>
-        /// Provides access to the underlying server process
+        /// Whether or not the server is started
         /// </summary>
-        MinecraftServer Server { get; }
+        bool Running { get; }
+
+        /// <summary>
+        /// Starts the server
+        /// </summary>
+        void StartServer();
+
+        /// <summary>
+        /// Stops the server
+        /// </summary>
+        void StopServer();
+
+        /// <summary>
+        /// Restarts the server
+        /// </summary>
+        void RestartServer();
 
         /// <summary>
         /// Adds a text line to the console display with the given foreground color

@@ -13,25 +13,25 @@ namespace ServerWrapperPlugins
         public string Description => "Displays chat messages sent in the last 30 minutes to players when they log in";
         private readonly DropOutLinkedList<ServerMessage> chatMessages = new DropOutLinkedList<ServerMessage>(20);
 
-        public void OnStart(IServerConsole server)
+        public void OnStart(IServerConsole console)
         {
             chatMessages.Clear();
         }
 
-        public void OnExit(IServerConsole server)
+        public void OnExit(IServerConsole console)
         {
             chatMessages.Clear();
         }
 
-        public void OnChatMessage(IServerConsole server, ServerChatMessage message)
+        public void OnChatMessage(IServerConsole console, ServerChatMessage message)
         {
             chatMessages.AddLast(message);
         }
-        public void OnErrorMessage(IServerConsole server, ServerErrorMessage message) { }
-        public void OnSuccessMessage(IServerConsole server, ServerSuccessMessage message) { }
-        public void OnOtherMessage(IServerConsole server, ServerMessage message) { }
+        public void OnErrorMessage(IServerConsole console, ServerErrorMessage message) { }
+        public void OnSuccessMessage(IServerConsole console, ServerSuccessMessage message) { }
+        public void OnOtherMessage(IServerConsole console, ServerMessage message) { }
 
-        public void OnPlayerConnect(IServerConsole server, ServerConnectionMessage message)
+        public void OnPlayerConnect(IServerConsole console, ServerConnectionMessage message)
         {
             var recentChat = new List<string>();
             foreach (var m in chatMessages)
@@ -44,7 +44,7 @@ namespace ServerWrapperPlugins
 
             if (recentChat.Count > 0)
             {
-                server.SendCommand(
+                console.SendCommand(
                     CommandHelper.Tellraw(
                         message.Username,
                         new MinecraftTextElement
@@ -59,7 +59,7 @@ namespace ServerWrapperPlugins
 
                 foreach (string s in recentChat)
                 {
-                    server.SendCommand(
+                    console.SendCommand(
                         CommandHelper.Tellraw(
                             message.Username,
                             new MinecraftTextElement
@@ -77,7 +77,7 @@ namespace ServerWrapperPlugins
             chatMessages.AddLast(message);
         }
 
-        public void OnPlayerDisconnect(IServerConsole server, ServerConnectionMessage message)
+        public void OnPlayerDisconnect(IServerConsole console, ServerConnectionMessage message)
         {
             chatMessages.AddLast(message);
         }

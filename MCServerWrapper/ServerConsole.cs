@@ -15,10 +15,9 @@ namespace MCServerWrapper
 {
     public partial class ServerConsole : Form, IServerConsole
     {
-        /// <summary>
-        /// Provides access to the underlying server process
-        /// </summary>
-        public MinecraftServer Server { get; private set; }
+        public bool Running => Server.Running;
+
+        private MinecraftServer Server { get; set; }
         private PerformanceCounter memoryCounter = null;
         private PerformanceCounter cpuCounter = null;
 
@@ -35,6 +34,48 @@ namespace MCServerWrapper
 
             config = ConfigFile.Load<Config>("config.json");
         }
+
+        /// <summary>
+        /// Starts the server
+        /// </summary>
+        public void StartServer()
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Minecraft Server Files (*.jar)|*.jar",
+                    CheckFileExists = true
+                };
+
+                if ((Server == null && openFileDialog.ShowDialog() == DialogResult.OK) || !Running)
+                {
+                    if (Server != null)
+                    {
+                        Server.Start();
+                    }
+                    else
+                    {
+                        Server = new MinecraftServer(openFileDialog.FileName, config.JvmArguments);
+                        Server.StandardOutput += Server_StandardOutputTextReceived;
+                        Server.StandardError += Server_StandardOutputTextReceived;
+                        Server.Exited += Server_Exited;
+                        Server.Started += Server_Started;
+                        Server.Start();
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Stops the server
+        /// </summary>
+        public void StopServer() => Server?.Stop();
+
+        /// <summary>
+        /// Restarts the server
+        /// </summary>
+        public void RestartServer() => Server?.Restart();
 
         /// <summary>
         /// Adds a text line to the console display with the given foreground color
@@ -158,24 +199,7 @@ namespace MCServerWrapper
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
-            {
-                var openFileDialog = new OpenFileDialog
-                {
-                    Filter = "Minecraft Server Files (*.jar)|*.jar",
-                    CheckFileExists = true
-                };
-
-                if ((Server == null || !Server.Running) && openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    Server = new MinecraftServer(openFileDialog.FileName, config.JvmArguments);
-                    Server.StandardOutput += Server_StandardOutputTextReceived;
-                    Server.StandardError += Server_StandardOutputTextReceived;
-                    Server.Exited += Server_Exited;
-                    Server.Started += Server_Started;
-                    Server.Start();
-                }
-            });
+            StartServer();
         }
 
         private void Server_Started(object sender, EventArgs e)
@@ -296,12 +320,12 @@ namespace MCServerWrapper
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Server?.Stop();
+            StopServer();
         }
 
         private void restartToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Server?.Restart();
+            RestartServer();
         }
 
         private void switchToolStripMenuItem_Click(object sender, EventArgs e)
@@ -375,7 +399,7 @@ namespace MCServerWrapper
 
         private void detailsTimer_Tick(object sender, EventArgs e)
         {
-            if (!Server.Running)
+            if (!Running)
             {
                 memoryCounter = null;
                 cpuCounter = null;
@@ -401,9 +425,9 @@ namespace MCServerWrapper
 
         private void ServerConsole_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Server == null || !Server.Running) return;
+            if (Server == null || !Running) return;
 
-            switch (MessageBox.Show("Stop the server before exiting?", "Server Running", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+            switch (MessageBox.Show("StopServer the server before exiting?", "Server Running", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
             {
                 case DialogResult.Yes:
                     Server.Exited += (ss, ee) => Application.Exit();
@@ -420,16 +444,16 @@ namespace MCServerWrapper
 
         private void statusToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Server == null || !Server.Running)
+            if (Server == null || !Running)
             {
-                if (MessageBox.Show("Start the server?", "Start Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("StartServer the server?", "StartServer Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     startToolStripMenuItem_Click(sender, e);
                 }
             }
             else
             {
-                if (MessageBox.Show("Stop the server?", "Stop Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("StopServer the server?", "StopServer Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     Server.Stop();
                 }
