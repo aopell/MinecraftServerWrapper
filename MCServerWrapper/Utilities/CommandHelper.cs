@@ -29,7 +29,7 @@ namespace MCServerWrapper.Messages
 
         [JsonProperty("strikethrough")] public bool Strikethrough { get; set; }
 
-        [JsonProperty("extra")] public MinecraftTextElement[] Extra { get; set; }
+        [JsonProperty("extra")] public MinecraftTextElement[] Extra { get; set; } = new MinecraftTextElement[0];
 
         public MinecraftTextElement() { }
 
@@ -50,7 +50,7 @@ namespace MCServerWrapper.Messages
             Underlined = underlined;
             Obfuscated = obfuscated;
             Strikethrough = strikethrough;
-            Extra = extra;
+            Extra = extra ?? new MinecraftTextElement[0];
         }
 
         public static MinecraftTextElement[] FromJson(string json)

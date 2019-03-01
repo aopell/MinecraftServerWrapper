@@ -11,7 +11,7 @@ namespace MCServerWrapper.Messages
         /// <param name="inputMessage">Standard output message received from the Minecraft server process</param>
         public static ServerMessage DetermineMessageType(string inputMessage, Dictionary<string, string> replacements)
         {
-            ServerMessage message = ServerMessage.Create(inputMessage);
+            ServerMessage message = ServerMessage.Create(inputMessage, replacements);
 
             if (string.IsNullOrEmpty(message.Text))
             {
@@ -20,7 +20,7 @@ namespace MCServerWrapper.Messages
 
             if (message.Text[0] == '<' || message.Text[0] == '[' || message.Text[0] == '*') // "<user> Chat message" or "[user: Set gamemode to Creative]" or "[user] Say command message" or "* user sings"
             {
-                return new ServerChatMessage(message, replacements);
+                return new ServerChatMessage(message);
             }
             else if (message.Text.ContainsAny("logged in", "lost connection"))
             {

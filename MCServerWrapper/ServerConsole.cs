@@ -16,9 +16,7 @@ namespace MCServerWrapper
 {
     public partial class ServerConsole : Form, IServerConsole
     {
-        public bool Running => Server.Running;
-
-        private MinecraftServer Server { get; set; }
+        public MinecraftServer Server { get; private set; }
         private PerformanceCounter memoryCounter = null;
         private PerformanceCounter cpuCounter = null;
 
@@ -54,7 +52,7 @@ namespace MCServerWrapper
                     CheckFileExists = true
                 };
 
-                if ((Server == null && openFileDialog.ShowDialog() == DialogResult.OK) || (Server != null && !Running))
+                if ((Server == null && openFileDialog.ShowDialog() == DialogResult.OK) || (Server != null && !Server.Running))
                 {
                     if (Server != null)
                     {
@@ -89,11 +87,12 @@ namespace MCServerWrapper
         /// <param name="text">The text to add to the console display</param>
         /// <param name="color">The foreground color of the text</param>
         /// <param name="time">The time to display for the message, uses <see cref="DateTime.Now"/> by default</param>
-        public void DisplayLine(string text, Color color, DateTime? time = null)
+        /// <param name="displayTime">Whether or not to display the time when logging the message</param>
+        public void DisplayLine(string text, Color color, DateTime? time = null, bool displayTime = true)
         {
             consoleView.SuspendLayout();
             consoleView.SelectionColor = color;
-            consoleView.AppendText($"{time ?? DateTime.Now:[HH:mm:ss]} {text}{Environment.NewLine}");
+            consoleView.AppendText(displayTime ? $"{time ?? DateTime.Now:[HH:mm:ss]} {text}{Environment.NewLine}" : $"{text}{Environment.NewLine}");
             consoleView.ScrollToCaret();
             consoleView.ResumeLayout();
         }
@@ -311,7 +310,7 @@ namespace MCServerWrapper
             {
                 if (e.Data == null) return;
                 ServerMessage m = ServerOutputParser.DetermineMessageType(e.Data, playerPrefixes);
-                DisplayLine(m.Text, GetColor(m));
+                DisplayLine(config.DisplayRawOutput ? m.RawText : m.Text, GetColor(m), displayTime: !config.DisplayRawOutput);
 
                 switch (m)
                 {
@@ -443,7 +442,7 @@ namespace MCServerWrapper
 
         private void detailsTimer_Tick(object sender, EventArgs e)
         {
-            if (!Running)
+            if (!Server.Running)
             {
                 memoryCounter = null;
                 cpuCounter = null;
@@ -469,7 +468,7 @@ namespace MCServerWrapper
 
         private void ServerConsole_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Server == null || !Running) return;
+            if (Server == null || !Server.Running) return;
 
             switch (MessageBox.Show("Stop the server before exiting?", "Server Running", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
             {
@@ -488,7 +487,7 @@ namespace MCServerWrapper
 
         private void statusToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Server == null || !Running)
+            if (Server == null || !Server.Running)
             {
                 if (MessageBox.Show("Start the server?", "Start Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {

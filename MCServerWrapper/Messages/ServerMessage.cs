@@ -8,27 +8,28 @@ namespace MCServerWrapper.Messages
     {
         public string Prefix { get; set; }
         public string Text { get; set; }
+        public string RawText { get; set; }
 
         public DateTime Timestamp { get; set; }
 
-        public ServerMessage(string prefix, string text)
+        public ServerMessage(string prefix, string text, string rawText)
         {
             Prefix = prefix;
             Text = text;
-            Timestamp = DateTime.Now;
+            RawText = rawText;
         }
 
-        public static ServerMessage Create(string message)
+        public static ServerMessage Create(string message, Dictionary<string, string> replacements = null)
         {
             int closeSquareBracket = message.IndexOf(']');
             if (closeSquareBracket < 0)
             {
-                return new ServerMessage("", message);
+                return new ServerMessage("", message, message);
             }
             int colon = message.Substring(closeSquareBracket).IndexOf(':') + closeSquareBracket;
             return colon < 0
-                   ? new ServerMessage("", message)
-                   : new ServerMessage(message.Substring(0, colon + 1).Trim(), message.Substring(colon + 2).Trim());
+                   ? new ServerMessage("", message, message)
+                   : new ServerMessage(message.Substring(0, colon + 1).Trim(), message.Substring(colon + 2).Trim().ReplaceAll(replacements), message);
         }
 
         public override string ToString() => Text;
@@ -36,14 +37,14 @@ namespace MCServerWrapper.Messages
 
     public class ServerErrorMessage : ServerMessage
     {
-        public ServerErrorMessage(string prefix, string text) : base(prefix, text) { }
-        public ServerErrorMessage(ServerMessage m) : this(m.Prefix, m.Text) { }
+        public ServerErrorMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
+        public ServerErrorMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
     }
 
     public class ServerSuccessMessage : ServerMessage
     {
-        public ServerSuccessMessage(string prefix, string text) : base(prefix, text) { }
-        public ServerSuccessMessage(ServerMessage m) : this(m.Prefix, m.Text) { }
+        public ServerSuccessMessage(string prefix, string text, string rawText) : base(prefix, text, rawText) { }
+        public ServerSuccessMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
     }
 
     public class ServerChatMessage : ServerMessage
@@ -52,9 +53,9 @@ namespace MCServerWrapper.Messages
         public string ChatMessage { get; set; }
         public ChatMessageType MessageType { get; set; }
 
-        public ServerChatMessage(string prefix, string text) : base(prefix, text)
+        public ServerChatMessage(string prefix, string text, string rawText) : base(prefix, text, rawText)
         {
-            GroupCollection groups = Regex.Match(text, @"([[<*]) ?(\w{1,16})[>:\] ] ?(.+?)(]$|$)").Groups;
+            GroupCollection groups = Regex.Match(Text, @"([[<*]) ?(\w{1,16})[>:\] ] ?(.+?)(]$|$)").Groups;
             Username = groups[2].Value;
             ChatMessage = groups[3].Value;
 
@@ -75,7 +76,7 @@ namespace MCServerWrapper.Messages
             }
         }
 
-        public ServerChatMessage(ServerMessage m, Dictionary<string, string> replacements = null) : this(m.Prefix, m.Text.ReplaceAll(replacements)) { }
+        public ServerChatMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
 
         public override string ToString()
         {
@@ -112,13 +113,13 @@ namespace MCServerWrapper.Messages
         public string Username { get; set; }
         public ServerConnectionType ConnectionType { get; set; }
 
-        public ServerConnectionMessage(string prefix, string text) : base(prefix, text)
+        public ServerConnectionMessage(string prefix, string text, string rawText) : base(prefix, text, rawText)
         {
             ConnectionType = text.Contains("lost connection") ? ServerConnectionType.Disconnect : ServerConnectionType.Connect;
             Username = Regex.Match(text, @"\w{1,16}").Value;
         }
 
-        public ServerConnectionMessage(ServerMessage m) : this(m.Prefix, m.Text) { }
+        public ServerConnectionMessage(ServerMessage m) : this(m.Prefix, m.Text, m.RawText) { }
 
         public override string ToString()
         {

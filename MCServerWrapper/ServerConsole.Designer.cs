@@ -295,7 +295,7 @@
             // setJVMArgumentsToolStripMenuItem
             // 
             this.setJVMArgumentsToolStripMenuItem.Name = "setJVMArgumentsToolStripMenuItem";
-            this.setJVMArgumentsToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.setJVMArgumentsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.setJVMArgumentsToolStripMenuItem.Text = "Set JVM Arguments";
             this.setJVMArgumentsToolStripMenuItem.Click += new System.EventHandler(this.setJVMArgumentsToolStripMenuItem_Click);
             // 
@@ -306,7 +306,7 @@
             this.reloadPluginsToolStripMenuItem,
             this.openFolderToolStripMenuItem});
             this.pluginsToolStripMenuItem1.Name = "pluginsToolStripMenuItem1";
-            this.pluginsToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
+            this.pluginsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.pluginsToolStripMenuItem1.Text = "Plugins";
             // 
             // unloadAllToolStripMenuItem
