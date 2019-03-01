@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace MCServerWrapper.Messages
 {
@@ -14,20 +13,20 @@ namespace MCServerWrapper.Messages
 
     public class MinecraftTextElement
     {
-        [J("text")] public string Text { get; set; }
+        [JsonProperty("text")] public string Text { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        [J("color")] public MinecraftColor Color { get; set; }
+        [JsonProperty("color")] public MinecraftColor Color { get; set; }
 
-        [J("bold")] public bool Bold { get; set; }
+        [JsonProperty("bold")] public bool Bold { get; set; }
 
-        [J("italic")] public bool Italic { get; set; }
+        [JsonProperty("italic")] public bool Italic { get; set; }
 
-        [J("underlined")] public bool Underlined { get; set; }
+        [JsonProperty("underlined")] public bool Underlined { get; set; }
 
-        [J("obfuscated")] public bool Obfuscated { get; set; }
+        [JsonProperty("obfuscated")] public bool Obfuscated { get; set; }
 
-        [J("strikethrough")] public bool Strikethrough { get; set; }
+        [JsonProperty("strikethrough")] public bool Strikethrough { get; set; }
 
         public MinecraftTextElement(
             string text = "",

@@ -1,5 +1,4 @@
 ﻿using MCServerWrapper.Messages;
-using MCServerWrapper.ServerWrapper;
 
 namespace MCServerWrapper.Plugins
 {
@@ -17,8 +16,8 @@ namespace MCServerWrapper.Plugins
         /// <summary>
         /// Called when the server starts
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
-        void OnStart(MinecraftServer server);
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
+        void OnStart(IServerConsole server);
         /// <summary>
         /// Called when the server exits
         /// </summary>
@@ -26,38 +25,38 @@ namespace MCServerWrapper.Plugins
         /// <summary>
         /// Called when a chat message is sent
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The chat message</param>
-        void OnChatMessage(MinecraftServer server, ServerChatMessage message);
+        void OnChatMessage(IServerConsole server, ServerChatMessage message);
         /// <summary>
         /// Called when the server receives an error message
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The error message</param>
-        void OnErrorMessage(MinecraftServer server, ServerErrorMessage message);
+        void OnErrorMessage(IServerConsole server, ServerErrorMessage message);
         /// <summary>
         /// Called when the server receives a success message
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The success message</param>
-        void OnSuccessMessage(MinecraftServer server, ServerSuccessMessage message);
+        void OnSuccessMessage(IServerConsole server, ServerSuccessMessage message);
         /// <summary>
         /// Called when the server receives a message that isn't otherwise categorized
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The uncategorized message</param>
-        void OnOtherMessage(MinecraftServer server, ServerMessage message);
+        void OnOtherMessage(IServerConsole server, ServerMessage message);
         /// <summary>
         /// Called when a player joins the server
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The connection message</param>
-        void OnPlayerConnect(MinecraftServer server, ServerConnectionMessage message);
+        void OnPlayerConnect(IServerConsole server, ServerConnectionMessage message);
         /// <summary>
         /// Called when a player disconnects from the server
         /// </summary>
-        /// <param name="server">A server wrapper providing an interface to the server process</param>
+        /// <param name="server">The server GUI - provides access to the underlying server process</param>
         /// <param name="message">The disconnection message</param>
-        void OnPlayerDisconnect(MinecraftServer server, ServerConnectionMessage message);
+        void OnPlayerDisconnect(IServerConsole server, ServerConnectionMessage message);
     }
 }

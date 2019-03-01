@@ -55,8 +55,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Messages\CommandHelper.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Plugins\IServerConsole.cs" />
+    <Compile Include="Utilities\CommandHelper.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
+    <Compile Include="Utilities\ConfigFile.cs" />
     <Compile Include="Utilities\DropOutLinkedList.cs" />
     <Compile Include="ServerWrapper\MinecraftServer.cs" />
     <Compile Include="PromptDialog.cs">

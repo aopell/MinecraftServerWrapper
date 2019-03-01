@@ -1,9 +1,10 @@
 ﻿using MCServerWrapper.Messages;
 using MCServerWrapper.Plugins;
-using MCServerWrapper.ServerWrapper;
 using MCServerWrapper.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 
 namespace ServerWrapperPlugins
 {
@@ -14,9 +15,10 @@ namespace ServerWrapperPlugins
         public string Description => "Displays chat messages sent in the last 30 minutes to players when they log in";
         private readonly DropOutLinkedList<ServerMessage> chatMessages = new DropOutLinkedList<ServerMessage>(20);
 
-        public void OnStart(MinecraftServer server)
+        public void OnStart(IServerConsole server)
         {
             chatMessages.Clear();
+            server.DisplayLine(Path.GetFullPath("."), Color.LightGray);
         }
 
         public void OnExit()
@@ -24,15 +26,15 @@ namespace ServerWrapperPlugins
             chatMessages.Clear();
         }
 
-        public void OnChatMessage(MinecraftServer server, ServerChatMessage message)
+        public void OnChatMessage(IServerConsole server, ServerChatMessage message)
         {
             chatMessages.AddLast(message);
         }
-        public void OnErrorMessage(MinecraftServer server, ServerErrorMessage message) { }
-        public void OnSuccessMessage(MinecraftServer server, ServerSuccessMessage message) { }
-        public void OnOtherMessage(MinecraftServer server, ServerMessage message) { }
+        public void OnErrorMessage(IServerConsole server, ServerErrorMessage message) { }
+        public void OnSuccessMessage(IServerConsole server, ServerSuccessMessage message) { }
+        public void OnOtherMessage(IServerConsole server, ServerMessage message) { }
 
-        public void OnPlayerConnect(MinecraftServer server, ServerConnectionMessage message)
+        public void OnPlayerConnect(IServerConsole server, ServerConnectionMessage message)
         {
             var recentChat = new List<string>();
             foreach (var m in chatMessages)
@@ -72,7 +74,7 @@ namespace ServerWrapperPlugins
             chatMessages.AddLast(message);
         }
 
-        public void OnPlayerDisconnect(MinecraftServer server, ServerConnectionMessage message)
+        public void OnPlayerDisconnect(IServerConsole server, ServerConnectionMessage message)
         {
             chatMessages.AddLast(message);
         }

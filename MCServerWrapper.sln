@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCServerWrapper", "MCServerWrapper\MCServerWrapper.csproj", "{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerWrapperPlugins", "ServerWrapperPlugins\ServerWrapperPlugins.csproj", "{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplePlugins", "SamplePlugins\SamplePlugins.csproj", "{78E86887-99C9-4A6B-AE8E-C152C255F30C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FC9D173-CAFC-4995-8A63-6B3522C7DA31}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4496D7DF-2E3A-4438-AFD3-8F217ED73ED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78E86887-99C9-4A6B-AE8E-C152C255F30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78E86887-99C9-4A6B-AE8E-C152C255F30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78E86887-99C9-4A6B-AE8E-C152C255F30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78E86887-99C9-4A6B-AE8E-C152C255F30C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,17 +22,5 @@ namespace MCServerWrapper.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-Xmx2G -Xms2G")]
-        public string JVMArgs {
-            get {
-                return ((string)(this["JVMArgs"]));
-            }
-            set {
-                this["JVMArgs"] = value;
-            }
-        }
     }
 }

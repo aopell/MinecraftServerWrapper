@@ -2,6 +2,7 @@
 using MCServerWrapper.Plugins;
 using MCServerWrapper.ServerWrapper;
 using MCServerWrapper.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +14,12 @@ using System.Windows.Forms;
 
 namespace MCServerWrapper
 {
-    internal partial class ServerConsole : Form
+    public partial class ServerConsole : Form, IServerConsole
     {
-        private MinecraftServer Server { get; set; }
+        /// <summary>
+        /// Provides access to the underlying server process
+        /// </summary>
+        public MinecraftServer Server { get; private set; }
         private PerformanceCounter memoryCounter = null;
         private PerformanceCounter cpuCounter = null;
 
@@ -23,11 +27,61 @@ namespace MCServerWrapper
         private LinkedListNode<string> currentHistoryItem = null;
 
         private readonly List<IPlugin> plugins = new List<IPlugin>();
+        private Config config;
 
         public ServerConsole()
         {
             Server = null;
             InitializeComponent();
+
+            config = File.Exists("config.json") ? JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json")) : new Config();
+            config.FilePath = "config.json";
+        }
+
+        /// <summary>
+        /// Adds a text line to the console display with the given foreground color
+        /// </summary>
+        /// <param name="text">The text to add to the console display</param>
+        /// <param name="color">The foreground color of the text</param>
+        /// <param name="time">The time to display for the message, uses <see cref="DateTime.Now"/> by default</param>
+        public void DisplayLine(string text, Color color, DateTime? time = null)
+        {
+            consoleView.SuspendLayout();
+            consoleView.SelectionColor = color;
+            consoleView.AppendText($"{time ?? DateTime.Now:[HH:mm:ss]} {text}{Environment.NewLine}");
+            consoleView.ScrollToCaret();
+            consoleView.ResumeLayout();
+        }
+
+        /// <summary>
+        /// Sends a command to the underlying server and optionally displays it in the console window and adds it to command history
+        /// </summary>
+        /// <param name="command">The command to send to the server</param>
+        /// <param name="displayInConsole">Whether or not to display the sent command in the console</param>
+        /// <param name="addToHistory">Whether or not to add this command to sent command history</param>
+        public void SendCommand(string command, bool displayInConsole = true, bool addToHistory = true)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                if (Server == null) return;
+
+                if (displayInConsole)
+                {
+                    DisplayLine(command, Color.Cyan);
+                }
+
+                Server.SendCommand(command);
+
+                if (addToHistory)
+                {
+                    if (commandHistory.Last?.Value != command)
+                    {
+                        commandHistory.AddLast(command);
+                    }
+
+                    currentHistoryItem = null;
+                }
+            });
         }
 
         /// <summary>
@@ -58,21 +112,6 @@ namespace MCServerWrapper
         }
 
         /// <summary>
-        /// Adds a text line to the console display with the given foreground color
-        /// </summary>
-        /// <param name="text">The text to add to the console display</param>
-        /// <param name="color">The foreground color of the text</param>
-        /// <param name="time">The time to display for the message, uses <see cref="DateTime.Now"/> by default</param>
-        private void DisplayLine(string text, Color color, DateTime? time = null)
-        {
-            consoleView.SuspendLayout();
-            consoleView.SelectionColor = color;
-            consoleView.AppendText($"{time ?? DateTime.Now:[HH:mm:ss]} {text}{Environment.NewLine}");
-            consoleView.ScrollToCaret();
-            consoleView.ResumeLayout();
-        }
-
-        /// <summary>
         /// Loads plugin DLL files from the Plugins directory
         /// </summary>
         private void LoadPlugins()
@@ -97,13 +136,13 @@ namespace MCServerWrapper
                 {
                     try
                     {
-                        Assembly assembly = Assembly.LoadFile(Path.GetFullPath(dll));
+                        Assembly assembly = Assembly.Load(File.ReadAllBytes(Path.GetFullPath(dll)));
                         var pluginTypes = assembly.GetTypes().Where(x => typeof(IPlugin).IsAssignableFrom(x));
                         plugins.AddRange(pluginTypes.Select(Activator.CreateInstance).Cast<IPlugin>());
                     }
                     catch (ReflectionTypeLoadException)
                     {
-                        DisplayLine($"Error loading plugins from DLL \"{Path.GetFullPath(dll)}\": Invalid plugin format.", Color.Red);
+                        DisplayLine($"Error loading plugins from DLL \"{Path.GetFullPath(dll)}\": Invalid plugin format. Please note that your project must reference System.Windows.Forms for your plugins to load correctly.", Color.Red);
                     }
                 }
 
@@ -131,7 +170,7 @@ namespace MCServerWrapper
 
                 if ((Server == null || !Server.Running) && openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    Server = new MinecraftServer(openFileDialog.FileName, Properties.Settings.Default.JVMArgs);
+                    Server = new MinecraftServer(openFileDialog.FileName, config.JvmArguments);
                     Server.StandardOutput += Server_StandardOutputTextReceived;
                     Server.StandardError += Server_StandardOutputTextReceived;
                     Server.Exited += Server_Exited;
@@ -167,7 +206,7 @@ namespace MCServerWrapper
                 string directory = new DirectoryInfo(Server.WorkingDirectory).Name;
                 Text = worldPropertyExists ? $"Minecraft Server | {directory} | {world}" : $"Minecraft Server | {directory}";
 
-                plugins.ForEach(x => x.OnStart(Server));
+                plugins.ForEach(x => x.OnStart(this));
             });
         }
 
@@ -210,24 +249,24 @@ namespace MCServerWrapper
                 switch (m)
                 {
                     case ServerChatMessage chat:
-                        plugins.ForEach(x => x.OnChatMessage(Server, chat));
+                        plugins.ForEach(x => x.OnChatMessage(this, chat));
                         break;
                     case ServerSuccessMessage s:
-                        plugins.ForEach(x => x.OnSuccessMessage(Server, s));
+                        plugins.ForEach(x => x.OnSuccessMessage(this, s));
                         break;
                     case ServerErrorMessage err:
-                        plugins.ForEach(x => x.OnErrorMessage(Server, err));
+                        plugins.ForEach(x => x.OnErrorMessage(this, err));
                         break;
                     case ServerConnectionMessage connection:
                         switch (connection.ConnectionType)
                         {
                             case ServerConnectionMessage.ServerConnectionType.Connect:
                                 PlayerJoined(connection);
-                                plugins.ForEach(x => x.OnPlayerConnect(Server, connection));
+                                plugins.ForEach(x => x.OnPlayerConnect(this, connection));
                                 break;
                             case ServerConnectionMessage.ServerConnectionType.Disconnect:
                                 PlayerLeft(connection);
-                                plugins.ForEach(x => x.OnPlayerDisconnect(Server, connection));
+                                plugins.ForEach(x => x.OnPlayerDisconnect(this, connection));
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -238,7 +277,7 @@ namespace MCServerWrapper
 
                         break;
                     default:
-                        plugins.ForEach(x => x.OnOtherMessage(Server, m));
+                        plugins.ForEach(x => x.OnOtherMessage(this, m));
                         break;
                 }
             });
@@ -332,20 +371,8 @@ namespace MCServerWrapper
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
-            {
-                if (Server == null) return;
-                DisplayLine(commandBox.Text, Color.Cyan);
-                Server.SendCommand(commandBox.Text);
-
-                if (commandHistory.Last?.Value != commandBox.Text)
-                {
-                    commandHistory.AddLast(commandBox.Text);
-                }
-
-                currentHistoryItem = null;
-                commandBox.Text = "";
-            });
+            SendCommand(commandBox.Text);
+            commandBox.Text = "";
         }
 
         private void detailsTimer_Tick(object sender, EventArgs e)
@@ -413,10 +440,10 @@ namespace MCServerWrapper
 
         private void setJVMArgumentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string jvmArguments = PromptDialog.Show("Enter JVM arguments. \"-jar {JarFilePath} nogui\" will be added to the end automatically.", "JVM Arguments", Properties.Settings.Default.JVMArgs, true);
+            string jvmArguments = PromptDialog.Show("Enter JVM arguments. \"-jar {JarFilePath} nogui\" will be added to the end automatically.", "JVM Arguments", config.JvmArguments, true);
             if (jvmArguments == null) return;
-            Properties.Settings.Default.JVMArgs = jvmArguments;
-            Properties.Settings.Default.Save();
+            config.JvmArguments = jvmArguments;
+            config.Save();
         }
 
         private void commandBox_KeyUp(object sender, KeyEventArgs e)
@@ -438,7 +465,7 @@ namespace MCServerWrapper
             }
         }
 
-        private void pluginsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void reloadPluginsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadPlugins();
         }
@@ -446,6 +473,17 @@ namespace MCServerWrapper
         private void ServerConsole_Load(object sender, EventArgs e)
         {
             LoadPlugins();
+        }
+
+        private void unloadAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            plugins.Clear();
+            DisplayLine("Unloaded all plugins", Color.LightGray);
+        }
+
+        private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(Path.GetFullPath("Plugins"));
         }
     }
 }
