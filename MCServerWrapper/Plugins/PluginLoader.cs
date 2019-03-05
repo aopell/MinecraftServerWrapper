@@ -23,6 +23,13 @@ namespace MCServerWrapper.Plugins
             PluginPath = path;
         }
 
+        /// <summary>
+        /// Loads plugins from the plugin path and returns a tuple containing the following:
+        /// Item 1: Number of DLLs loaded,
+        /// Item 2: Number of plugins loaded,
+        /// Item 3: Number of plugins that failed to load
+        /// </summary>
+        /// <returns></returns>
         public (int dlls, int loaded, int failed) Load()
         {
             if (!Directory.Exists(PluginPath)) return (0, 0, 0);

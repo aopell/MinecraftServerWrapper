@@ -49,7 +49,7 @@ namespace SamplePlugins
 
             var data = new NbtFile(playerData).RootTag.Get<NbtList>("Pos");
 
-            console.SendCommand(CommandHelper.Tellraw("@a", new MinecraftTextElement($"[Death Location] {player} died at approximately ({string.Join(", ", data.Select(x => (int)x.DoubleValue))})", MinecraftColor.light_purple)), true, false);
+            console.SendCommand(CommandHelper.Tellraw("@a", new MinecraftTextComponent($"[Death Location] {player} died at approximately ({string.Join(", ", data.Select(x => (int)x.DoubleValue))})", MinecraftColor.light_purple)), true, false);
         }
 
         public void OnPlayerConnect(IServerConsole console, ServerConnectionMessage message) { }

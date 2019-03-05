@@ -47,7 +47,7 @@ namespace ServerWrapperPlugins
                 console.SendCommand(
                     CommandHelper.Tellraw(
                         message.Username,
-                        new MinecraftTextElement
+                        new MinecraftTextComponent
                         {
                             Text = $"Welcome {message.Username}! Here are some recent chat messages:",
                             Color = MinecraftColor.gold
@@ -62,7 +62,7 @@ namespace ServerWrapperPlugins
                     console.SendCommand(
                         CommandHelper.Tellraw(
                             message.Username,
-                            new MinecraftTextElement
+                            new MinecraftTextComponent
                             {
                                 Text = s,
                                 Color = MinecraftColor.gold

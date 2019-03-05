@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MCServerWrapper.Utilities
 {
-    public class MinecraftTextElement
+    public class MinecraftTextComponent
     {
         [JsonProperty("text")] public string Text { get; set; }
 
@@ -21,11 +21,12 @@ namespace MCServerWrapper.Utilities
 
         [JsonProperty("strikethrough")] public bool Strikethrough { get; set; }
 
-        [JsonProperty("extra")] public MinecraftTextElement[] Extra { get; set; } = new MinecraftTextElement[0];
+        [JsonProperty("extra", NullValueHandling = NullValueHandling.Ignore)]
+        public MinecraftTextComponent[] Extra { get; set; }
 
-        public MinecraftTextElement() { }
+        public MinecraftTextComponent() { }
 
-        public MinecraftTextElement(
+        public MinecraftTextComponent(
             string text = "",
             MinecraftColor color = MinecraftColor.white,
             bool bold = false,
@@ -33,7 +34,7 @@ namespace MCServerWrapper.Utilities
             bool underlined = false,
             bool obfuscated = false,
             bool strikethrough = false,
-            MinecraftTextElement[] extra = null)
+            MinecraftTextComponent[] extra = null)
         {
             Text = text;
             Color = color;
@@ -42,17 +43,17 @@ namespace MCServerWrapper.Utilities
             Underlined = underlined;
             Obfuscated = obfuscated;
             Strikethrough = strikethrough;
-            Extra = extra ?? new MinecraftTextElement[0];
+            Extra = extra;
         }
 
-        public static MinecraftTextElement[] FromJson(string json)
+        public static MinecraftTextComponent[] FromJson(string json)
         {
             return JObject.Parse(json).Type == JTokenType.Array
-                       ? JsonConvert.DeserializeObject<MinecraftTextElement[]>(json)
-                       : new[] { JsonConvert.DeserializeObject<MinecraftTextElement>(json) };
+                       ? JsonConvert.DeserializeObject<MinecraftTextComponent[]>(json)
+                       : new[] { JsonConvert.DeserializeObject<MinecraftTextComponent>(json) };
         }
 
-        public override string ToString() => Extra == null ? Text : string.Join("", Text, string.Join("", (object[])Extra));
+        public override string ToString() => Extra == null ? Text : string.Join("", Text, Extra == null ? "" : string.Join("", (object[])Extra));
     }
 
     public enum MinecraftColor

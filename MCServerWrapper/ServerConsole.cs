@@ -187,8 +187,8 @@ namespace MCServerWrapper
                 foreach (NbtTag nbtTag in teams)
                 {
                     var team = (NbtCompound)nbtTag;
-                    string prefix = string.Join("", (object[])MinecraftTextElement.FromJson(team.Get("MemberNamePrefix").StringValue));
-                    string suffix = string.Join("", (object[])MinecraftTextElement.FromJson(team.Get("MemberNameSuffix").StringValue));
+                    string prefix = string.Join("", (object[])MinecraftTextComponent.FromJson(team.Get("MemberNamePrefix").StringValue));
+                    string suffix = string.Join("", (object[])MinecraftTextComponent.FromJson(team.Get("MemberNameSuffix").StringValue));
 
                     var players = team.Get<NbtList>("Players");
                     if (players == null) continue;
